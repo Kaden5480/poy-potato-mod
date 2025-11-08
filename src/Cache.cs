@@ -12,6 +12,11 @@ namespace PotatoMod {
         public static List<bool> postProcessDefaults;
         public static List<PotatoMod.Light> lights;
 
+        public static CustomLevel_DistanceActivator customDistanceActivator;
+        public static bool customDistanceActivatorEnabled;
+        public static float customDistanceActivatorMin;
+        public static float customDistanceActivatorMax;
+
         public static void FindObjects() {
             GameObject postProcessGlobalObj = GameObject.Find("_PostProcessingGlobal");
             if (postProcessGlobalObj != null) {
@@ -38,6 +43,13 @@ namespace PotatoMod {
             foreach (UnityEngine.Light light in GameObject.FindObjectsOfType<UnityEngine.Light>()) {
                 lights.Add(new PotatoMod.Light(light));
             }
+
+            customDistanceActivator = GameObject.FindObjectOfType<CustomLevel_DistanceActivator>();
+            if (customDistanceActivator != null) {
+                customDistanceActivatorEnabled = customDistanceActivator.enabled;
+                customDistanceActivatorMin = customDistanceActivator.activateDistance;
+                customDistanceActivatorMax = customDistanceActivator.deactivateDistance;
+            }
         }
 
         public static void Clear() {
@@ -45,6 +57,7 @@ namespace PotatoMod {
             postProcessProfile = null;
             postProcessDefaults = null;
             lights = null;
+            customDistanceActivator = null;
         }
     }
 }
