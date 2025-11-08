@@ -1,51 +1,50 @@
+using System.Collections.Generic;
+
+using HarmonyLib;
 using UnityEngine;
 using UnityEngine.Rendering.PostProcessing;
 
 namespace PotatoMod {
-    public class Cache : Loggable {
-        public PostProcessLayer camYPost           { get; private set; }
-        public GameObject distanceRenderCamera     { get; private set; }
-        public PostProcessLayer distanceRenderPost { get; private set; }
+    public static class Cache {
+        public static PostProcessVolume postProcessGlobal;
+        public static PostProcessProfile postProcessProfile;
 
-        /**
-         * <summary>
-         * Caches objects in the scene.
-         * </summary>
-         */
-        public void FindObjects() {
-            // Access the player's camera
-            GameObject cameraHolderObj = GameObject.Find("PlayerCameraHolder");
-            if (cameraHolderObj != null) {
-                // The camera has two components, X and Y
-                foreach (CameraLook cameraLook in cameraHolderObj.GetComponentsInChildren<CameraLook>()) {
-                    // Get the Y component
-                    if ("PlayerCameraHolder".Equals(cameraLook.gameObject.name) == false) {
-                        LogDebug("Found camY PostProcessLayer");
-                        camYPost = cameraLook.gameObject.GetComponent<PostProcessLayer>();
-                    }
+        public static List<bool> postProcessDefaults;
+        public static List<PotatoMod.Light> lights;
+
+        public static void FindObjects() {
+            GameObject postProcessGlobalObj = GameObject.Find("_PostProcessingGlobal");
+            if (postProcessGlobalObj != null) {
+                postProcessGlobal = postProcessGlobalObj.GetComponent<PostProcessVolume>();
+            }
+
+            if (postProcessGlobal != null) {
+                postProcessProfile = (PostProcessProfile) AccessTools.Field(
+                    typeof(PostProcessVolume), "m_InternalProfile"
+                ).GetValue(postProcessGlobal);
+
+                if (postProcessProfile == null) {
+                    Plugin.LogDebug("Profile is missing");
+                }
+
+                postProcessDefaults = new List<bool>();
+                foreach (PostProcessEffectSettings setting in postProcessProfile.settings) {
+                    Plugin.LogDebug($"{setting}: {setting.active}");
+                    postProcessDefaults.Add(setting.active);
                 }
             }
 
-            distanceRenderCamera = GameObject.Find("DistanceRenderCam");
-            if (distanceRenderCamera != null) {
-                LogDebug("Found DistanceRenderCam");
-                distanceRenderPost = distanceRenderCamera.GetComponent<PostProcessLayer>();
+            lights = new List<PotatoMod.Light>();
+            foreach (UnityEngine.Light light in GameObject.FindObjectsOfType<UnityEngine.Light>()) {
+                lights.Add(new PotatoMod.Light(light));
             }
-
-            LogDebug("Finished finding objects");
         }
 
-        /**
-         * <summary>
-         * Clears the cache.
-         * </summary>
-         */
-        public void Clear() {
-            camYPost = null;
-            distanceRenderCamera = null;
-            distanceRenderPost = null;
-
-            LogDebug("Cleared cache");
+        public static void Clear() {
+            postProcessGlobal = null;
+            postProcessProfile = null;
+            postProcessDefaults = null;
+            lights = null;
         }
     }
 }
