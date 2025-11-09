@@ -6,11 +6,11 @@ using Optimiser = PotatoMod.Optimise.Optimiser;
 
 namespace PotatoMod {
     public class UI {
-        private const float width = 300f;
+        private const float width = 350f;
         private const float height = 400f;
         private const float padding = 20f;
-        private const float elementWidth = 100f;
 
+        private const float elementWidth = 200f;
         private bool enabled = false;
         private Vector2 scrollPosition = Vector2.zero;
 
@@ -63,7 +63,7 @@ namespace PotatoMod {
         private void RenderSlider(string name, ConfigEntry<int> setting, int min, int max) {
             GUILayout.BeginHorizontal();
 
-            GUILayout.Label(name, GUILayout.Width(elementWidth));
+            GUILayout.Label($"{name} ({setting.Value})", GUILayout.Width(elementWidth));
             UpdateSlider(setting, min, max);
 
             GUILayout.EndHorizontal();
